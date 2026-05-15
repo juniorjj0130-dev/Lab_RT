@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Rust
+rust/target/
+target/
+
+# VSCode / JetBrains
+.vscode/
+.idea/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Git interno
+**/.git
+
+# Logs
+*.log
+
+# Env
+.env
+
+# Build
+dist/
+build/
