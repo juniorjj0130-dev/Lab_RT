@@ -9,6 +9,8 @@ from PIL import Image, ImageDraw, ImageFont
 from werkzeug.utils import secure_filename
 from functools import wraps
 
+#projeto
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.urandom(32)
 app.permanent_session_lifetime = timedelta(minutes=30)
