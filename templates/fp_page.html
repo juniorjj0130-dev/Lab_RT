@@ -1,50 +1,164 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8">
-  <title>Coletando fingerprint — Simulação</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body{ background:#0b0b0b; color:#cfe; font-family:monospace; display:flex; align-items:center; justify-content:center; height:100vh; }
-    .box{ background:#101010; padding:20px; border-radius:8px; width:560px; text-align:left; box-shadow:0 6px 30px rgba(0,0,0,0.6); }
-    pre{ white-space:pre-wrap; word-break:break-word; font-size:13px; }
-    .small{ font-size:12px; opacity:0.8; }
-  </style>
+    <meta charset="utf-8">
+    <title>Coletando Informações do Navegador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: #0b0b0b;
+            color: #cfe;
+            font-family: 'Segoe UI', monospace, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: #101010;
+            padding: 30px;
+            border-radius: 12px;
+            width: 620px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+            border: 1px solid #222;
+        }
+        h2 {
+            margin-top: 0;
+            color: #58a6ff;
+        }
+        pre {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            max-height: 280px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+        .success {
+            color: #3fb950;
+        }
+    </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Coletando fingerprint (simulado)</h2>
-    <p class="small">Apenas coleta de informações do navegador para análise didática.</p>
-    <pre id="out">Preparando...</pre>
-  </div>
+    <div class="box">
+        <h2>🔍 Coletando Fingerprint</h2>
+        <p class="status" id="status">Coletando informações do navegador...</p>
+        <pre id="out">Aguarde...</pre>
+    </div>
 
-<script>
-(function(){
-  const fid = "{{ fid }}";
-  const payload = {
-    id: fid,
-    userAgent: navigator.userAgent || "",
-    platform: navigator.platform || "",
-    languages: navigator.languages || [navigator.language],
-    cookieEnabled: navigator.cookieEnabled,
-    hardwareConcurrency: navigator.hardwareConcurrency || null,
-    deviceMemory: navigator.deviceMemory || null,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
-    screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth },
-    timestamp: new Date().toISOString()
-  };
+    <script>
+        async function coletarFingerprintAvancado() {
+            const dados = {};
 
-  document.getElementById("out").textContent = JSON.stringify(payload, null, 2);
+            // Informações básicas
+            dados.userAgent = navigator.userAgent;
+            dados.platform = navigator.platform;
+            dados.language = navigator.language;
+            dados.languages = navigator.languages;
+            dados.hardwareConcurrency = navigator.hardwareConcurrency;
+            dados.deviceMemory = navigator.deviceMemory || "unknown";
+            dados.cookieEnabled = navigator.cookieEnabled;
+            dados.doNotTrack = navigator.doNotTrack;
 
-  fetch("{{ url_for('collect_fp') }}", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    keepalive: true
-  }).then(r => r.json()).then(j => {
-    setTimeout(() => { window.location.href = j.redirect || "{{ url_for('index') }}"; }, 800);
-  }).catch(e => { document.getElementById("out").textContent += "\\n\\nFalha ao enviar: " + String(e); });
-})();
-</script>
+            // Tela
+            dados.screen = {
+                width: screen.width,
+                height: screen.height,
+                colorDepth: screen.colorDepth,
+                pixelDepth: screen.pixelDepth
+            };
+
+            // Timezone
+            dados.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            dados.timezoneOffset = new Date().getTimezoneOffset();
+
+            // Canvas Fingerprint
+            try {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                ctx.textBaseline = "top";
+                ctx.font = "16px Arial";
+                ctx.fillStyle = "#f60";
+                ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = "#069";
+                ctx.fillText("LabRT2026 Fingerprint", 2, 15);
+                dados.canvas = canvas.toDataURL().substring(0, 100) + "..."; // Resumido
+            } catch (e) {
+                dados.canvas = "error";
+            }
+
+            // WebGL
+            try {
+                const glCanvas = document.createElement("canvas");
+                const gl = glCanvas.getContext("webgl") || glCanvas.getContext("experimental-webgl");
+                if (gl) {
+                    dados.webgl = {
+                        vendor: gl.getParameter(gl.VENDOR),
+                        renderer: gl.getParameter(gl.RENDERER)
+                    };
+                }
+            } catch (e) {
+                dados.webgl = "error";
+            }
+
+            // AudioContext
+            try {
+                const audio = new (window.AudioContext || window.webkitAudioContext)();
+                dados.audio = {
+                    sampleRate: audio.sampleRate
+                };
+            } catch (e) {
+                dados.audio = "error";
+            }
+
+            // Plugins
+            dados.plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                dados.plugins.push(navigator.plugins[i].name);
+            }
+
+            return dados;
+        }
+
+        async function enviarFingerprint() {
+            const statusEl = document.getElementById("status");
+            const outEl = document.getElementById("out");
+
+            try {
+                const fingerprint = await coletarFingerprintAvancado();
+                outEl.textContent = JSON.stringify(fingerprint, null, 2);
+
+                // Envia para o servidor
+                const response = await fetch("{{ url_for('receber_fingerprint') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(fingerprint)
+                });
+
+                if (response.ok) {
+                    statusEl.innerHTML = '<span class="success">✓ Fingerprint coletado com sucesso!</span>';
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('index') }}";
+                    }, 1200);
+                } else {
+                    statusEl.textContent = "Erro ao enviar fingerprint.";
+                }
+            } catch (error) {
+                statusEl.textContent = "Falha na coleta: " + error;
+                outEl.textContent = "Erro: " + error;
+            }
+        }
+
+        // Inicia automaticamente
+        window.onload = enviarFingerprint;
+    </script>
 </body>
 </html>
