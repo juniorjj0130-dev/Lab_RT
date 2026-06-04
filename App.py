@@ -9,8 +9,6 @@ from PIL import Image, ImageDraw, ImageFont
 from werkzeug.utils import secure_filename
 from functools import wraps
 
-
-
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.urandom(32)
 app.permanent_session_lifetime = timedelta(minutes=30)
@@ -38,98 +36,44 @@ def log_access(msg):
 def gerar_captcha():
     chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
     codigo = ''.join(random.choices(chars, k=6))
-
-    # Imagem maior
-    largura, altura = 600, 220
-
+    largura, altura = 460, 170
     img = Image.new("RGB", (largura, altura), "#0d1117")
     draw = ImageDraw.Draw(img)
 
     # Ruído
-    for _ in range(1200):
-        draw.point(
-            (
-                random.randint(0, largura - 1),
-                random.randint(0, altura - 1)
-            ),
-            fill=(random.randint(30, 90),) * 3
-        )
-
-    # Grade de fundo
-    for x in range(0, largura, 40):
+    for _ in range(900):
+        draw.point((random.randint(0, largura - 1), random.randint(0, altura - 1)), fill=(random.randint(30, 90),) * 3)
+    for x in range(0, largura, 32):
         draw.line((x, 0, x, altura), fill="#23272f", width=1)
-
-    for y in range(0, altura, 40):
+    for y in range(0, altura, 32):
         draw.line((0, y, largura, y), fill="#23272f", width=1)
 
-    # Letras maiores
-    x_base = 35
-
+    # Texto distorcido
+    x_base = 50
     for i, c in enumerate(codigo):
         try:
-            font = ImageFont.truetype(
-                os.path.join(BASE_DIR, "static/fonts/arialbd.ttf"),
-                random.randint(95, 115)  # antes: 68-78
-            )
+            font = ImageFont.truetype(os.path.join(BASE_DIR, "static/fonts/arialbd.ttf"), random.randint(68, 78))
         except:
             font = ImageFont.load_default()
+        cor = (random.randint(120, 255), random.randint(120, 255), random.randint(180, 255))
+        angulo = random.randint(-25, 25)
 
-        cor = (
-            random.randint(160, 255),
-            random.randint(160, 255),
-            random.randint(200, 255)
-        )
-
-        angulo = random.randint(-15, 15)
-
-        # Área temporária maior
-        temp = Image.new("RGBA", (180, 180), (0, 0, 0, 0))
+        temp = Image.new("RGBA", (120, 140), (0, 0, 0, 0))
         d = ImageDraw.Draw(temp)
-
-        d.text(
-            (25, 15),
-            c,
-            font=font,
-            fill=cor
-        )
-
-        rot = temp.rotate(
-            angulo,
-            expand=True,
-            resample=Image.BICUBIC
-        )
-
-        img.paste(
-            rot,
-            (
-                x_base + i * 90 + random.randint(-8, 8),
-                40 + random.randint(-8, 8)
-            ),
-            rot
-        )
+        d.text((20, 15), c, font=font, fill=cor)
+        rot = temp.rotate(angulo, expand=True, resample=Image.BICUBIC)
+        img.paste(rot, (x_base + i * 68 + random.randint(-12, 12), 38 + random.randint(-15, 15)), rot)
 
     # Linhas de ruído
-    for _ in range(10):
-        draw.line(
-            [
-                random.randint(20, 180),
-                random.randint(20, 200),
-                random.randint(420, 580),
-                random.randint(20, 200)
-            ],
-            fill=(
-                random.randint(80, 150),
-                random.randint(100, 220),
-                255
-            ),
-            width=4
-        )
+    for _ in range(8):
+        draw.line([
+            random.randint(20, 120), random.randint(20, 150),
+            random.randint(340, 440), random.randint(20, 150)
+        ], fill=(random.randint(80, 150), random.randint(100, 220), 255), width=3)
 
     nome = f"captcha_{uuid.uuid4().hex[:12]}.png"
     caminho = os.path.join(BASE_DIR, "downloads", nome)
-
     img.save(caminho, "PNG")
-
     return codigo, nome
 
 

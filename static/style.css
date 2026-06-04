@@ -5,8 +5,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .container {
@@ -16,7 +18,7 @@
 }
 
 .card {
-    width: 600px;
+    width: 1200px; /* Aumentado para imagem de 1100px */
     max-width: 95%;
     background: linear-gradient(
         180deg,
@@ -27,6 +29,7 @@
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     text-align: center;
+    backdrop-filter: blur(2px);
 }
 
 h1 {
@@ -34,65 +37,109 @@ h1 {
     color: #cfe;
     font-size: 32px;
     margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* ESTILO PARA A IMAGEM DO CAPTCHA ENORME */
+.captcha-img {
+    width: 100%;
+    max-width: 1100px; /* Largura máxima da imagem */
+    height: auto;
+    border-radius: 10px;
+    border: 2px solid rgba(77, 163, 255, 0.3);
+    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background: #0d1117;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 .captcha {
     width: 100%;
-    min-height: 180px;
+    max-width: 1100px;
+    height: auto;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.10);
+    border: 2px solid rgba(77, 163, 255, 0.3);
     margin-bottom: 20px;
     display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background: #0d1117;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
+/* CAMPO DE ENTRADA GRANDE */
 input[type="text"] {
     width: 100%;
-    padding: 16px;
-    font-size: 28px;
-    letter-spacing: 8px;
+    padding: 20px;
+    font-size: 36px;
+    letter-spacing: 12px;
     text-transform: uppercase;
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.10);
-    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.3);
     color: #d7e7ff;
     box-sizing: border-box;
     margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
 input[type="text"]:focus {
     outline: none;
     border-color: #4da3ff;
     box-shadow: 0 0 10px rgba(77,163,255,0.4);
+    background: rgba(0,0,0,0.5);
+}
+
+input[type="text"]::placeholder {
+    color: rgba(215, 231, 255, 0.5);
+    font-size: 28px;
+    letter-spacing: 6px;
 }
 
 .btn {
     display: inline-block;
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     border-radius: 8px;
     background: #0066ff;
     color: #fff;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
+    transition: all 0.2s ease;
 }
 
 .btn:hover {
     background: #0052cc;
+    transform: scale(1.02);
+}
+
+.btn:active {
+    transform: scale(0.98);
 }
 
 .btn.alt {
     background: #333;
 }
 
+.btn.alt:hover {
+    background: #444;
+}
+
 .alert {
-    background: #3b0f0f;
+    background: rgba(59, 15, 15, 0.9);
     color: #ffb3b3;
     padding: 12px;
     border-radius: 6px;
     margin-bottom: 15px;
+    font-size: 16px;
+    border-left: 4px solid #ff4444;
 }
 
 ul {
@@ -100,8 +147,113 @@ ul {
     padding-left: 18px;
 }
 
+li {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
 .loginfo {
     margin-top: 10px;
     font-size: 14px;
     color: #a9bcd6;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.message.success {
+    background: rgba(0, 255, 0, 0.1);
+    color: #00ff88;
+    border-left: 4px solid #00ff88;
+}
+
+.message.error {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff8888;
+    border-left: 4px solid #ff4444;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 1200px) {
+    .card {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 28px;
+    }
+    
+    .captcha-img, .captcha {
+        max-width: 100%;
+    }
+    
+    input[type="text"] {
+        padding: 16px;
+        font-size: 28px;
+        letter-spacing: 8px;
+    }
+    
+    input[type="text"]::placeholder {
+        font-size: 22px;
+    }
+    
+    .btn {
+        font-size: 20px;
+        padding: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    input[type="text"] {
+        padding: 14px;
+        font-size: 24px;
+        letter-spacing: 6px;
+    }
+    
+    input[type="text"]::placeholder {
+        font-size: 18px;
+    }
+    
+    .btn {
+        font-size: 18px;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(77,163,255,0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(77,163,255,0.8);
 }

