@@ -23,11 +23,17 @@
   <div class="header">VLC Media Player – Verificação de Segurança</div>
   <div class="content">
     <h1>Confirme que não é um robô</h1>
+    
     <p>Para sua proteção, digite o código da imagem:</p>
+
     {% if captcha_image %}
-      <img src="/c/{{ captcha_image }}" class="captcha-img" alt="CAPTCHA">
+        <img src="/c/{{ captcha_image }}" class="captcha-img" alt="CAPTCHA" style="max-width: 100%; border-radius: 12px;">
+    {% else %}
+        <div style="background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; margin:20px 0;">
+            Erro ao carregar o CAPTCHA. Recarregue a página.
+        </div>
     {% endif %}
-    {% if erro %}<div style="color:#d32f2f;margin:18px 0;font-weight:bold;">{{ erro }}</div>{% endif %}
+    
     <form method="POST">
       <input type="text" name="captcha_input" placeholder="DIGITE AQUI" required maxlength="6" autocomplete="off">
       <button type="submit" class="btn">Validar Código</button>
