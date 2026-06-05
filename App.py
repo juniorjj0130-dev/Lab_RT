@@ -8,6 +8,8 @@ from flask import Flask, render_template, request, session, send_file, abort, re
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from werkzeug.utils import secure_filename
 from functools import wraps
+from app import create_app
+
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.urandom(32)
@@ -264,9 +266,15 @@ def receber_fingerprint():
         return jsonify({"status": "error"}), 400
 
 
+app = create_app()
+
 if __name__ == "__main__":
     print("=" * 70)
-    print("🔥 LAB RED TEAM 2026 - PROJETO MELHORADO (Etapa D)")
-    print("http://127.0.0.1:5000")
+    print("🔥 LAB RED TEAM 2026 - Refatorado (Etapa 1)")
+    print(f"http://127.0.0.1:{app.config['SERVER_PORT']}")
     print("=" * 70)
-    app.run(host="0.0.0.0", port=5000, threaded=True, debug=False)
+    app.run(
+        host=app.config['SERVER_HOST'],
+        port=app.config['SERVER_PORT'],
+        threaded=True,
+        debug=False
